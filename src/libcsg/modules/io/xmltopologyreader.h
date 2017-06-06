@@ -102,6 +102,8 @@ private:
     void ParseAngle(Property &p);
     void ParseDihedral(Property &p);
 
+    void ReadExclusions(string excl_filename);
+
 private:
     ParseXML _parser;
 

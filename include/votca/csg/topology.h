@@ -226,6 +226,8 @@ public:
      */
     void RenameMolecules(string range, string name);
 
+    void SplitResidues();
+
     /**
      *  \brief rename all the bead types
      * \param name current rame of the bead type

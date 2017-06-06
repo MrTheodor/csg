@@ -18,8 +18,10 @@
 #include <iostream>
 #include <fstream>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include <stdio.h>
 #include <stdexcept>
+#include <votca/tools/tokenizer.h>
 #include "xmltopologyreader.h"
 
 namespace votca { namespace csg {
@@ -31,7 +33,6 @@ bool XMLTopologyReader::ReadTopology(string filename, Topology &top)  {
     load_property_from_xml(options, filename);
     ParseRoot(options.get("topology"));
 
-    _top->RebuildExclusions();
     return true;
 }
 
@@ -54,6 +55,7 @@ void XMLTopologyReader::ParseRoot(Property &property)  {
         _has_base_topology = true;
     }
 
+    bool rebuild_exclusions = true;
     // Iterate over keys at first level.
     for (Property::iterator it = property.begin(); it != property.end(); ++it) {
         if (it->name() == "h5md_particle_group") {
@@ -72,6 +74,8 @@ void XMLTopologyReader::ParseRoot(Property &property)  {
             throw runtime_error("unknown tag: topology."+ it->name());
         }
     }
+    if (rebuild_exclusions)
+        _top->RebuildExclusions();
 }
 
 void XMLTopologyReader::ParseBox(Property &p) {
@@ -86,6 +90,8 @@ void XMLTopologyReader::ParseMolecules(Property &p) {
     for (Property::iterator it = p.begin(); it != p.end(); ++it) {
         if (it->name() == "clear") {
             _top->ClearMoleculeList();
+        } else if (it->name() == "split") {
+            _top->SplitResidues();
         } else if (it->name() == "rename") {
             string molname = it->getAttribute<string>("name");
             string range = it->getAttribute<string>("range");
@@ -115,6 +121,31 @@ void XMLTopologyReader::ParseMolecules(Property &p) {
             }
         }
     }
+}
+
+
+void XMLTopologyReader::ReadExclusions(string excl_filename) {
+  ifstream excl_file;
+  excl_file.open(excl_filename, ios::in);
+  if (excl_file.is_open()) {
+    string line;
+    std::cout << "Reading exclusions from: " << excl_filename << std::endl;
+    while (std::getline(excl_file, line)) {
+      std::vector<string> data;
+      boost::split(data, line, boost::is_any_of("\t "), boost::token_compress_on);
+      if (data.size() > 0) {
+        int bead1 = stoi(data[0]);
+        list<Bead *> excl_list;
+        std::cout << bead1 << ": ";
+        for (int i=1; i < data.size(); i++) {
+          excl_list.push_back(_top->getBead(stoi(data[i])));
+          std::cout << stoi(data[i]);
+        }
+        std::cout << std::endl;
+        _top->InsertExclusion(_top->getBead(bead1), excl_list);
+      }
+    }
+  }
 }
 
 void XMLTopologyReader::ParseMolecule(Property &p, string molname, int nbeads, int nmols) {
