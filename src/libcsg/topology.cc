@@ -230,8 +230,30 @@ void Topology::SetBeadTypeMass(string name, double value)
 
 }
 
+void Topology::SplitResidues()
+{
+    MoleculeContainer::iterator it_mol;
+    for(it_mol=_molecules.begin();it_mol<_molecules.end(); ++it_mol)
+        delete *it_mol;
+    _molecules.clear();
+
+    ResidueContainer::iterator it_res;
+    for (it_res=_residues.begin(); it_res != _residues.end(); ++it_res) {
+        CreateMolecule((*it_res)->getName());
+    }
+
+    BeadContainer::iterator bead;
+    for (bead = _beads.begin(); bead != _beads.end(); ++bead) {
+        stringstream n("");
+        n << "1:" << _residues[(*bead)->getResnr()]->getName() << ":" << (*bead)->getName();
+        MoleculeByIndex((*bead)->getResnr())->AddBead((*bead), n.str());
+        }
+}
+
+
 void Topology::CheckMoleculeNaming(void)
 {
+  return ;
     map<string,int> nbeads;
 
     for(MoleculeContainer::iterator iter = _molecules.begin(); iter!=_molecules.end(); ++iter) {
