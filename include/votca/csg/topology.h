@@ -227,6 +227,11 @@ class Topology {
   void ClearMoleculeList() { _molecules.clear(); }
 
   /**
+   * Split residues into molecules.
+   */
+  void SplitResidues();
+
+  /**
    * \brief adds all the beads+molecules+residues from other topology
    * \param top topology to add
    */

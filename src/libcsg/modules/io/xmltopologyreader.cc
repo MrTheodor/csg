@@ -17,9 +17,11 @@
 
 #include "xmltopologyreader.h"
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <votca/tools/tokenizer.h>
 #include <stdio.h>
 
 namespace votca {
@@ -87,7 +89,9 @@ void XMLTopologyReader::ParseBox(Property &p) {
 void XMLTopologyReader::ParseMolecules(Property &p) {
   for (Property::iterator it = p.begin(); it != p.end(); ++it) {
     if (it->name() == "clear") {
-      _top->ClearMoleculeList();
+      _top->ClearMoleculeList()
+    } else if (it->name() == "split") {
+      _top->SplitResidues();
     } else if (it->name() == "rename") {
       string molname = it->getAttribute<string>("name");
       string range = it->getAttribute<string>("range");
