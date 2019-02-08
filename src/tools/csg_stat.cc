@@ -57,6 +57,7 @@ public:
     Imc _imc;
     int _block_length;
     string _extension;
+    bool _do_norm;
 };
 
 void CsgStatApp::HelpText(ostream &out)
@@ -74,7 +75,8 @@ void CsgStatApp::Initialize()
             ("options", boost::program_options::value<string>(), "  options file for coarse graining")
             ("do-imc", "  write out additional Inverse Monte Carlo data")
             ("block-length", boost::program_options::value<int>(), "  write blocks of this length, the averages are cleared after every write")
-            ("ext", boost::program_options::value<string>(&_extension)->default_value("dist.new"), "Extension of the output");
+            ("ext", boost::program_options::value<string>(&_extension)->default_value("dist.new"), "Extension of the output")
+            ("normalize", boost::program_options::value<bool>(&_do_norm)->default_value(true), "Normalize");
 }
 
 bool CsgStatApp::EvaluateOptions()
@@ -95,6 +97,7 @@ bool CsgStatApp::EvaluateOptions()
     _imc.DoImc(true);
 
     _imc.Extension(_extension);
+    _imc.DoNorm(_do_norm);
 
     _imc.Initialize();
     return true;

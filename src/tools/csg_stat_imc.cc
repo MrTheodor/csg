@@ -28,7 +28,7 @@
 namespace votca { namespace csg {
 
 Imc::Imc()
-   : _block_length(0), _do_imc(false), _processed_some_frames(false)
+   : _block_length(0), _do_imc(false), _processed_some_frames(false), _do_norm(true)
 {
 }
 
@@ -98,11 +98,13 @@ void Imc::BeginEvaluate(Topology *top, Topology *top_atom)
             throw std::runtime_error("Topology does not have beads of type \"" + (*iter)->get("type2").value() + "\"\n"
                     "This was specified in type2 of interaction \"" + name + "\"");
         // calculate normalization factor for rdf
-
-        if ((*iter)->get("type1").value() == (*iter)->get("type2").value())
-            i._norm = 1. / (beads1.size()*(beads2.size()) / 2.);
-        else
-            i._norm = 1. / (beads1.size() * beads2.size());
+        
+        if (_do_norm) {
+          if ((*iter)->get("type1").value() == (*iter)->get("type2").value())
+              i._norm = 1. / (beads1.size()*(beads2.size()) / 2.);
+          else
+              i._norm = 1. / (beads1.size() * beads2.size());
+        }
     }
 
     for (list<Property*>::iterator iter = _bonded.begin();

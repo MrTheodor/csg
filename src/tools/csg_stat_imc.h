@@ -59,6 +59,7 @@ public:
     void BlockLength(int length) { _block_length = length; }
     void DoImc(bool do_imc) { _do_imc = do_imc; }
     void Extension(string ext) { _extension = ext; }
+    void DoNorm(bool do_norm) { _do_norm = do_norm; }
     
 protected:
     Average<double> _avg_vol;
@@ -103,6 +104,8 @@ protected:
 
     // file extension for the distributions
     string _extension;
+
+    bool _do_norm;
 
     // number of frames we processed
     int _nframes;
