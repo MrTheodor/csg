@@ -89,7 +89,7 @@ void XMLTopologyReader::ParseBox(Property &p) {
 void XMLTopologyReader::ParseMolecules(Property &p) {
   for (Property::iterator it = p.begin(); it != p.end(); ++it) {
     if (it->name() == "clear") {
-      _top->ClearMoleculeList()
+      _top->ClearMoleculeList();
     } else if (it->name() == "split") {
       _top->SplitResidues();
     } else if (it->name() == "rename") {
