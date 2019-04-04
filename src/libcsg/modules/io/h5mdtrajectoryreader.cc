@@ -20,6 +20,7 @@
 #include "h5mdtrajectoryreader.h"
 #include "hdf5.h"
 
+#include <memory>
 #include <vector>
 
 namespace votca {

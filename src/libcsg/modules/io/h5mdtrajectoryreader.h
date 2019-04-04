@@ -25,6 +25,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <memory>
 
 #include "hdf5.h"
 
