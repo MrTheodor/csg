@@ -9,7 +9,7 @@ file(GLOB VOTCA_SOURCES *.cc potentialfunctions/*.cc)
 file(GLOB NOT_VOTCA_SOURCES version_nb.cc test.cc)
 list(REMOVE_ITEM VOTCA_SOURCES ${NOT_VOTCA_SOURCES})
 
-add_library(votca_csg ${VOTCA_SOURCES} ${IO_SOURCES})
+add_library(votca_csg ${VOTCA_SOURCES} ${IO_SOURCES} modules/io/h5mdtrajectorywriter.h modules/io/h5mdtrajectorywriter.cc modules/io/h5md.h)
 if (TARGET GMX::libgromacs)
   #general to a gmx builds
   target_sources(votca_csg PRIVATE ${GMX_SOURCES})

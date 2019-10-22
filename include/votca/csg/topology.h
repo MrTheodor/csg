@@ -45,6 +45,8 @@ using BeadContainer = std::vector<Bead *>;
 using ResidueContainer = std::vector<Residue *>;
 using InteractionContainer = std::vector<Interaction *>;
 
+const std::string UnassignedParticleGroupName = "unassigned";
+
 /**
  * \brief topology of the whole system
  *
@@ -419,7 +421,7 @@ class Topology {
   bool _has_force = false;
 
   /// The particle group (For H5MD file format)
-  std::string _particle_group = "unassigned";
+  std::string _particle_group = UnassignedParticleGroupName;
 };
 
 inline Bead *Topology::CreateBead(tools::byte_t symmetry, std::string name,
