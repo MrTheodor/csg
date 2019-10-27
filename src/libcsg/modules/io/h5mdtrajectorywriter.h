@@ -22,7 +22,7 @@
 #include <votca_config.h>
 #include "h5md.h"
 
-#include "hdf5.h"
+#include "H5Cpp.h"
 
 namespace votca {
 namespace csg {
@@ -48,8 +48,12 @@ class H5MDTrajectoryWriter : public TrajectoryWriter, public H5MDReadWrite {
  private:
   void Initialize(Topology *top);
   bool appendMode;
-  hid_t hdfFile_;
   bool fileOpened_;
+  bool newFile_;
+  void initializeHeader();
+  void initializeTimeGroup(const string& name);
+  H5::H5File hdfFile_;
+  H5::Group particleGroup_;
 };
 
 }  // namespace csg

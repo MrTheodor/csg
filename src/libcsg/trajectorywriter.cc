@@ -32,6 +32,10 @@
 #include "modules/io/dlpolytrajectorywriter.h"
 #include "modules/io/growriter.h"
 
+#ifdef H5MD
+#include "modules/io/h5mdtrajectorywriter.h"
+#endif
+
 namespace votca {
 namespace csg {
 
@@ -48,6 +52,9 @@ void TrajectoryWriter::RegisterPlugins() {
   TrjWriterFactory().Register<GMXTrajectoryWriter>("xtc");
 #endif
   TrjWriterFactory().Register<GROWriter>("gro");
+#ifdef H5MD
+  TrjWriterFactory().Register<H5MDTrajectoryWriter>("h5");
+#endif
 }
 }  // namespace csg
 }  // namespace votca

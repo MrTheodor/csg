@@ -15,8 +15,9 @@
  *
  */
 
+#include <boost/filesystem/operations.hpp>
 #include "h5mdtrajectorywriter.h"
-#include "hdf5.h"
+#include "H5Cpp.h"
 
 namespace votca {
 namespace csg {
@@ -26,34 +27,32 @@ H5MDTrajectoryWriter::H5MDTrajectoryWriter() {
 }
 
 H5MDTrajectoryWriter::~H5MDTrajectoryWriter() {
-  if (fileOpened_) {
-    H5Fclose(hdfFile_);
-    fileOpened_ = false;
-  }
 }
 
-void csg::H5MDTrajectoryWriter::Open(std::string file, bool bAppend) {
-  if (!H5Fis_hdf5(file.c_str())) {
-    std::cout << file << " is not recognise as HDF5 file format" << std::endl;
-    return;
-  }
+void csg::H5MDTrajectoryWriter::Open(std::string fileName, bool bAppend) {
+  // disbale default HDF5-Diag messags
+  H5::Exception::dontPrint();
 
   appendMode = bAppend;
 
-  if (bAppend) {
-    hdfFile_ = H5Fopen(file.c_str(), H5F_ACC_CREAT, H5P_DEFAULT);
-  } else {
-    hdfFile_ = H5Fopen(file.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT);
+  if (!H5::H5File::isHdf5(fileName)) {
+    // wrong file format
+    throw std::ios_base::failure("Wrong file format");
   }
-  fileOpened_ = true;
 
+
+  if (!boost::filesystem::exists(fileName)) {
+    hdfFile_ = H5::H5File(fileName, H5F_ACC_EXCL);
+    newFile_ = true;
+  } else {
+    hdfFile_ = H5::H5File(fileName, H5F_ACC_RDWR);
+    newFile_ = false;
+  }
+
+  fileOpened_ = true;
 }
 
 void H5MDTrajectoryWriter::Close() {
-  if (fileOpened_) {
-    H5Fclose(hdfFile_);
-    fileOpened_ = false;
-  }
 }
 
 void H5MDTrajectoryWriter::Write(Topology *conf) {
@@ -66,10 +65,33 @@ void H5MDTrajectoryWriter::Initialize(Topology *top) {
     particle_group_name_ = "atoms";
   }
 
-  std::string position_group_name = particle_group_name_ + "/position";
-  if (!GroupExists(hdfFile_, position_group_name) && )
-  atom_position_group_ =
-      H5Gopen(particle_group_, position_group_name.c_str(), H5P_DEFAULT);
+  if (newFile_) {
+    initializeHeader();
+  }
+
+  particleGroup_ = hdfFile_.openGroup(std::string("/particles/") + particle_group_name_);
+}
+
+
+void H5MDTrajectoryWriter::initializeHeader() {
+  const H5::Group &h5md = hdfFile_.createGroup("h5md");
+  
+  H5::DataSpace dsVersion = H5::DataSpace();
+  hsize_t dim = 2;
+  H5::ArrayType dataType(H5::PredType::NATIVE_INT, 1, &dim);
+  H5::Attribute versionAttr = h5md.createAttribute("version", dataType, dsVersion);
+  int version[2] = {1, 1};
+  versionAttr.write(dataType, version);
+
+
+  H5::StrType strType(H5::PredType::C_S1, 5);
+  H5::DataSpace ds = H5::DataSpace(H5S_SCALAR);
+  H5::Group h5mdCreator = h5md.createGroup("creator");
+  H5::Attribute creatorNameAttr = h5mdCreator.createAttribute("name", strType, ds);
+  creatorNameAttr.write(strType, "VOTCA");
+
+  H5::Attribute versionNameAttr = h5mdCreator.createAttribute("version", strType, ds);
+  versionNameAttr.write(strType, VERSION);
 }
 
 }  // namespace csg
